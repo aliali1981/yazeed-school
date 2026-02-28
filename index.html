@@ -383,4 +383,23 @@
     function exportDailyToText() {
         let date = document.getElementById('adminDateSelector').value;
         let text = `غياب يوم: ${date}\n---------------------------------\n`;
-        document
+        document.querySelectorAll("#oldDateResult div").forEach(div => {
+            let h = div.querySelector("div")?.innerText;
+            if(h) {
+                text += `\n[ ${h} ]\n`;
+                div.querySelectorAll("tr").forEach(tr => text += "- " + tr.querySelector("td").innerText + " (" + tr.querySelectorAll("td")[1].innerText + ")\n");
+            }
+        });
+        downloadTxt(text, `غياب_${date}`);
+    }
+
+    function downloadTxt(text, name) {
+        const blob = new Blob([text], {type: "text/plain;charset=utf-8"});
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `${name}.txt`;
+        link.click();
+    }
+</script>
+</body>
+</html>
