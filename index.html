@@ -241,7 +241,7 @@
     function pushToCloud() {
         const cls = document.getElementById('classSelect').value; if(!cls) return;
         let update = {}; قائمة_الطلاب_كاملة[cls].forEach((_, i) => { update[i] = { status: document.getElementById('stat'+i).value }; });
-        database.ref(`attendance/${todayKey}/${cls}/حصة_${selectedLesson}`).set(update).then(() => alert("✅ تم حفظ تحضير الحصة " + selectedLesson));
+        database.ref(`attendance/${todayKey}/${cls}/حصة_${selectedLesson}`).set(update).then(() => alert("✅ تم حفظ غياب الحصة " + selectedLesson));
     }
 
     function adminShortcut() { 
@@ -421,5 +421,6 @@
 </script>
 </body>
 </html>
+
 
 
