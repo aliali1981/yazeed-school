@@ -1,26 +1,23 @@
 {
-  "short_name": "مدرسة يزيد",
-  "name": "الغياب الإلكتروني مدرسة يزيد بن الحارث",
+  "id": "/ahfaz-w-aktob-v2",
+  "short_name": "أحفظ وأكتب",
+  "name": "مبادرة أحفظ وأكتب | مدرسة يزيد بن الحارث",
   "icons": [
     {
-      "src": "logo.png",
-      "sizes": "192x192",
+      "src": "https://raw.githubusercontent.com/aliali1981/Ahfaz-W-Aktob/main/logo.png",
       "type": "image/png",
-      "purpose": "any maskable"
+      "sizes": "192x192"
     },
     {
-      "src": "logo.png",
-      "sizes": "512x512",
+      "src": "https://raw.githubusercontent.com/aliali1981/Ahfaz-W-Aktob/main/logo.png",
       "type": "image/png",
-      "purpose": "any"
+      "sizes": "512x512"
     }
   ],
-  "start_url": "/yazeed-school/",
+  "start_url": "index.html",
+  "scope": "./",
+  "background_color": "#002d38",
+  "theme_color": "#002d38",
   "display": "standalone",
-  "background_color": "#1a2a6c",
-  "theme_color": "#1a2a6c",
-  "orientation": "portrait",
-  "dir": "rtl",
-  "lang": "ar"
+  "orientation": "portrait"
 }
-
