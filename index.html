@@ -3,339 +3,489 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مبادرة أحفظ وأكتب | مدرسة يزيد بن الحارث</title>
+    <title>الغياب الإلكتروني مدرسة يزيد بن الحارث</title>
     
-    <!-- ربط ملفات PWA للتثبيت على الهواتف -->
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#002d38">
-    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#1a2a6c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="أحفظ وأكتب">
-    <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/aliali1981/Ahfaz-W-Aktob/main/logo.png">
+    <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/aliali1981/yazeed-school/a50150e66ccf86f423cce81d6d402473c4bf15bb/logo.png">
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap');
-        
-        :root {
-            --primary: #002d38; 
-            --accent: #c5a021;  
-            --bg: #f4f7f6;      
-            --white: #ffffff;
-            --success: #27ae60;
-            --danger: #e74c3c;
-            --info: #3498db;
-            --shadow: 0 10px 25px rgba(0,0,0,0.1);
-        }
-
-        body { font-family: 'Tajawal', sans-serif; margin: 0; background: var(--bg); color: #333; text-align: right; overflow-x: hidden; }
-
-        .universal-footer {
-            position: fixed; bottom: 20px; left: 5%; width: 90%; 
-            background: rgba(0, 45, 56, 0.9); backdrop-filter: blur(15px);
-            border-radius: 20px; padding: 12px; border: 1px solid rgba(197, 160, 33, 0.4);
-            display: flex; justify-content: space-around; align-items: center;
-            z-index: 9999; box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-        }
-        .f-item { text-align: center; color: white; }
-        .f-item i { color: var(--accent); font-size: 1.3rem; margin-bottom: 5px; display: block; }
-        .f-item span { font-size: 0.75rem; opacity: 0.8; font-weight: bold; }
-        .f-item b { display: block; font-size: 0.9rem; margin-top: 3px; }
-
-        #mainMenu { width: 100%; min-height: 100vh; background: var(--primary); display: flex; flex-direction: column; align-items: center; padding: 40px 0; position: relative; }
-        .logo-circle { 
-            width: 140px; height: 140px; background: white; border-radius: 50%; 
-            display: flex; align-items: center; justify-content: center; 
-            border: 5px solid var(--accent); box-shadow: 0 0 25px rgba(197, 160, 33, 0.4); 
-            margin-bottom: 20px; position: relative; overflow: hidden;
-        }
-        .logo-circle img { width: 85%; height: 85%; object-fit: contain; }
-
-        .main-title { color: #fff; font-size: 2.2rem; font-weight: 900; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
-        .school-info { color: var(--accent); font-weight: 700; font-size: 1.1rem; margin-bottom: 20px; text-align: center; }
-
-        #pwaInstallBtn {
-            display: none; background: var(--accent); color: var(--primary);
-            padding: 12px 20px; border-radius: 30px; border: none;
-            font-weight: 900; font-family: 'Tajawal'; font-size: 0.95rem;
-            margin-bottom: 25px; cursor: pointer; box-shadow: 0 4px 15px rgba(197, 160, 33, 0.4);
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
-        .nav-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; width: 90%; max-width: 500px; padding-bottom: 140px; }
-        .menu-btn { background: rgba(255,255,255,0.1); color: #fff; padding: 25px 10px; border-radius: 20px; text-align: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); transition: 0.3s; }
-        .menu-btn i { font-size: 2rem; margin-bottom: 12px; display: block; color: var(--accent); }
-        .menu-btn:hover { background: rgba(255,255,255,0.2); transform: translateY(-3px); }
-
-        #contentArea { display: none; padding: 20px; padding-bottom: 150px; min-height: 100vh; box-sizing: border-box; }
-        .back-nav { background: var(--primary); color: var(--accent); padding: 15px; border-radius: 12px; border: none; font-weight: 900; cursor: pointer; margin-bottom: 20px; width: 100%; font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: var(--shadow); }
-
-        .info-card { background: white; padding: 20px; border-radius: 20px; margin-bottom: 15px; border-right: 6px solid var(--accent); box-shadow: var(--shadow); }
-        .info-card h3 { color: var(--primary); margin: 0 0 15px 0; display: flex; align-items: center; gap: 10px; background: #fdf8e6; padding: 10px; border-radius: 10px; }
-        .info-list { list-style: none; padding: 0; margin: 0; }
-        .info-list li { margin-bottom: 12px; display: flex; align-items: flex-start; gap: 12px; line-height: 1.6; font-size: 0.95rem; }
-        .info-list i { color: var(--accent); font-size: 1.1rem; margin-top: 4px; }
-
-        .admin-header { background: white; padding: 20px; border-radius: 20px; box-shadow: var(--shadow); margin-bottom: 25px; border-top: 5px solid var(--accent); }
-
-        .progress-container { width: 100%; background: #eee; border-radius: 10px; margin: 15px 0; display: none; overflow: hidden; }
-        #progressBar { width: 0%; height: 12px; background: var(--success); transition: 0.3s; }
-        
-        #previewBox { display: none; width: 100%; margin-top: 15px; border-radius: 15px; overflow: hidden; border: 2px solid var(--accent); }
-        #finalUploadBtn { display: none; width: 100%; background: var(--success); color: white; padding: 15px; border-radius: 12px; border: none; font-weight: 900; margin-top: 10px; cursor: pointer; }
-
-        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        .stat-card { background: #fcfcfc; padding: 15px; border-radius: 15px; text-align: center; border: 1px solid #eee; position: relative; }
-        .stat-card i { font-size: 1.4rem; color: var(--accent); margin-bottom: 8px; display: block; }
-        .stat-card b { display: block; font-size: 1.4rem; color: var(--primary); margin-top: 5px; }
-        .medal-badge { position: absolute; top: 5px; left: 5px; color: #f1c40f; font-size: 1rem; }
-        .cert-badge { position: absolute; top: 5px; right: 5px; color: #3498db; font-size: 1rem; }
-
-        .student-row { background: white; padding: 18px; border-radius: 20px; margin-bottom: 15px; box-shadow: var(--shadow); border-right: 8px solid #ddd; }
-        .student-row.sent { border-right-color: var(--success); }
-        .action-btns { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 10px; }
-        .btn-act { padding: 10px; border-radius: 10px; border: none; font-family: 'Tajawal'; font-size: 0.8rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; }
-        .btn-view { background: #eef2ff; color: var(--info); grid-column: span 2; }
-        .btn-star.active { background: #b45309; color: white; }
-        .btn-medal.active { background: #f1c40f; color: #000; }
-        .btn-cert.active { background: #3498db; color: #fff; }
+        :root { --primary: #1a2a6c; --success: #27ae60; --danger: #c0392b; --bg: #f4f7f9; --dark: #2c3e50; --accent: #f39c12; --info: #2980b9; --leave: #3498db; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--bg); margin: 0; padding: 10px; padding-bottom: 120px; direction: rtl; }
+        .info-bar { background: white; margin: 10px auto; padding: 10px; border-radius: 10px; display: flex; justify-content: space-around; font-size: 0.8rem; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid #eee; color: var(--primary); }
+        .info-bar span { color: var(--danger); }
+        .logo-container { text-align: center; margin-bottom: 10px; }
+        .logo-img { width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--primary); background: white; padding: 5px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .card { background: #ffffff; border-radius: 15px; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 15px; overflow: hidden; }
+        .pro-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; margin-top: 10px; }
+        .pro-table th { background: var(--primary); color: white; padding: 12px; font-size: 0.85rem; }
+        .pro-table td { background: white; padding: 12px; text-align: center; border-top: 1px solid #eee; border-bottom: 1px solid #eee; font-weight: bold; }
+        .row-5 { background-color: #e3f2fd !important; border-right: 5px solid #2196f3; }
+        .row-6 { background-color: #e8f5e9 !important; border-right: 5px solid #4caf50; }
+        .row-7 { background-color: #fff3e0 !important; border-right: 5px solid #ff9800; }
+        .row-8 { background-color: #f3e5f5 !important; border-right: 5px solid #9c27b0; }
+        .result-item { background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%); padding: 15px; border-radius: 12px; margin-bottom: 10px; border-right: 5px solid var(--info); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .result-header { color: var(--primary); font-weight: 800; border-bottom: 1px dashed #ccc; padding-bottom: 5px; margin-bottom: 8px; display: flex; justify-content: space-between; }
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 15px; }
+        .stat-box { padding: 10px 5px; border-radius: 10px; text-align: center; color: white; font-weight: bold; font-size: 0.75rem; }
+        .stat-full { grid-column: span 1.5; font-size: 0.85rem; }
+        .main-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.8rem; }
+        .main-table th { background: linear-gradient(to bottom, var(--primary), #2a5298); color: white; padding: 10px 2px; }
+        .main-table td { padding: 10px 5px; text-align: center; border-bottom: 1px solid rgba(0,0,0,0.05); font-weight: 700; }
+        .admin-summary { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-bottom: 15px; }
+        .summary-card { background: var(--dark); color: white; padding: 10px 5px; border-radius: 12px; text-align: center; border-bottom: 4px solid var(--accent); grid-column: span 2; }
+        .summary-card.wide { grid-column: span 3; }
+        .summary-card span { display: block; font-size: 1.1rem; color: var(--accent); font-weight: 800; }
+        .btn-action { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; width: 100%; cursor: pointer; margin-top: 10px; }
+        .btn-excel { background: #1d6f42; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; width: 100%; margin-top: 10px; cursor: pointer; }
+        .btn-update { background: #d35400; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; width: 100%; margin-top: 10px; cursor: pointer; }
+        .tabs { display: flex; gap: 5px; margin-bottom: 15px; }
+        .tab-btn { flex: 1; padding: 10px; border-radius: 8px; border: none; background: #ddd; font-weight: bold; cursor: pointer; }
+        .tab-btn.active { background: var(--primary); color: white; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .page-footer { position: fixed; bottom: 0; left: 0; width: 100%; background: white; border-top: 3px solid var(--primary); padding: 10px 15px; box-sizing: border-box; display: flex; justify-content: space-between; align-items: center; z-index: 1000; font-size: 0.8rem; font-weight: bold; color: var(--primary); }
+        .sub-list-table { width: 100%; border-collapse: collapse; margin-top: 5px; background: rgba(255,255,255,0.5); border-radius: 8px; }
+        .sub-list-table td { padding: 8px; border-bottom: 1px solid #eee; text-align: right; color: #333; font-size: 0.85rem; }
+        .form-select { width: 100%; padding: 14px; font-weight: bold; border: 2px solid #eee; border-radius: 10px; margin-bottom: 10px; background: white; }
+        .suggestion-item { padding: 10px; cursor: pointer; border-bottom: 1px solid #eee; }
+        .suggestion-item:hover { background-color: #f1f1f1; }
     </style>
 </head>
-<body>
+<body onload="updateClock()">
 
-    <div class="universal-footer">
-        <div class="f-item"><i class="fas fa-lightbulb"></i><span>فكرة وتنفيذ</span><b>أ / علي محمد علي</b></div>
-        <div class="f-item"><i class="fas fa-user-tie"></i><span>مدير المدرسة</span><b>أ / رمضان سيد إبراهيم</b></div>
+<div class="logo-container">
+    <img src="https://raw.githubusercontent.com/aliali1981/yazeed-school/a50150e66ccf86f423cce81d6d402473c4bf15bb/logo.png" class="logo-img" alt="شعار المدرسة">
+</div>
+
+<div class="info-bar">
+    <div>اليوم: <span id="clock-day">-</span></div>
+    <div>التاريخ: <span id="clock-date">-</span></div>
+    <div>الوقت: <span id="clock-time">-</span></div>
+</div>
+
+<div class="card" style="text-align: center;">
+    <h3 onclick="adminShortcut()" style="margin:0 0 10px 0; color:var(--primary); cursor: pointer;">???? مدرسة يزيد بن الحارث للتعليم الأساسي</h3>
+    
+    <select id="classSelect" onchange="fetchClassData()" class="form-select">
+        <option value="">-- اختر الصف الدراسي --</option>
+        <optgroup label="خامس"><option value="5-1">خامس 1</option><option value="5-2">خامس 2</option><option value="5-3">خامس 3</option></optgroup>
+        <optgroup label="سادس"><option value="6-1">سادس 1</option><option value="6-2">سادس 2</option></optgroup>
+        <optgroup label="سابع"><option value="7-1">سابع 1</option><option value="7-2">سابع 2</option></optgroup>
+        <optgroup label="ثامن"><option value="8-1">ثامن 1</option><option value="8-2">ثامن 2</option><option value="8-3">ثامن 3</option></optgroup>
+    </select>
+
+    <select id="lessonSelect" onchange="setLesson(this.value)" class="form-select" style="border-color: var(--accent);">
+        <option value="1">حصة 1</option>
+        <option value="2">حصة 2</option>
+        <option value="3">حصة 3</option>
+        <option value="4">حصة 4</option>
+        <option value="5">حصة 5</option>
+        <option value="6">حصة 6</option>
+        <option value="7">حصة 7</option>
+    </select>
+
+    <div id="teacherStats" class="stats-grid" style="display:none;">
+        <div class="stat-box" style="background:var(--dark)">الطلاب<br><span id="tTotal">0</span></div>
+        <div class="stat-box" style="background:var(--success)">حاضر<br><span id="tPres">0</span></div>
+        <div class="stat-box" style="background:var(--danger)">غائب<br><span id="tAbs">0</span></div>
+        <div class="stat-box stat-full" style="background:var(--info)">نسبة الحضور: <span id="tPercP">0%</span></div>
+        <div class="stat-box stat-full" style="background:#8e44ad">نسبة الغياب: <span id="tPercA">0%</span></div>
+    </div>
+</div>
+
+<div id="loginArea" class="card" style="display:none;">
+    <input type="password" id="passInput" placeholder="أدخل رمز المدير..." style="width:100%; padding:12px; border:2px solid #eee; border-radius:8px;">
+    <button onclick="checkPassword()" class="btn-action">دخول الصلاحيات</button>
+</div>
+
+<div id="mainAppArea" class="card" style="display:none;">
+    <table class="main-table">
+        <thead><tr><th>م</th><th>اسم الطالب</th><th>الحالة</th></tr></thead>
+        <tbody id="studentsListBody"></tbody>
+    </table>
+    <button class="btn-action" style="background:var(--success)" onclick="pushToCloud()">حفظ غياب اليوم ?</button>
+</div>
+
+<div id="adminPanel" style="display:none; padding-bottom:120px;">
+    <div class="admin-summary">
+        <div class="summary-card">إجمالي الطلاب <span id="sTotal">0</span></div>
+        <div class="summary-card">عدد الحضور <span id="sPres">0</span></div>
+        <div class="summary-card">عدد الغياب <span id="sAbs">0</span></div>
+        <div class="summary-card wide">نسبة الحضور <span id="sPresPerc">0%</span></div>
+        <div class="summary-card wide">نسبة الغياب <span id="sAbsPerc">0%</span></div>
     </div>
 
-    <div id="mainMenu">
-        <div class="logo-circle">
-            <img src="https://raw.githubusercontent.com/aliali1981/Ahfaz-W-Aktob/main/logo.png" alt="الشعار">
-        </div>
-        <div class="main-title">مبادرة أحفظ وأكتب</div>
-        <div class="school-info">مدرسة يزيد بن الحارث للتعليم الأساسي (5 - 8)</div>
-        
-        <button id="pwaInstallBtn" onclick="installPWA()"><i class="fas fa-download"></i> تثبيت التطبيق على الهاتف</button>
-
-        <div class="nav-grid">
-            <div class="menu-btn" onclick="openSec('info')"><i class="fas fa-file-alt"></i><span>عن المبادرة</span></div>
-            <div class="menu-btn" onclick="openSec('texts')"><i class="fas fa-book-open"></i><span>مكتبة النصوص</span></div>
-            <div class="menu-btn" onclick="openSec('upload')"><i class="fas fa-video"></i><span>شارك الآن</span></div>
-            <div class="menu-btn" onclick="openSec('honor')"><i class="fas fa-medal"></i><span>لوحة الشرف</span></div>
-            <div class="menu-btn" onclick="openSec('gallery')"><i class="fas fa-star"></i><span>المتميزون</span></div>
-            <div class="menu-btn" onclick="checkAdmin()"><i class="fas fa-user-shield"></i><span>لوحة التحكم</span></div>
-        </div>
+    <div class="card" style="padding:0;">
+        <table class="main-table">
+            <thead>
+                <tr>
+                    <th style="width:18%">الصف</th>
+                    <th style="width:14%">العدد</th>
+                    <th style="width:14%">حاضر</th>
+                    <th style="width:14%">غائب</th>
+                    <th style="width:20%">% حضور</th>
+                    <th style="width:20%">% غياب</th>
+                </tr>
+            </thead>
+            <tbody id="masterTableBody"></tbody>
+        </table>
     </div>
 
-    <div id="contentArea">
-        <button class="back-nav" onclick="goHome()"><i class="fas fa-chevron-right"></i> القائمة الرئيسية</button>
-
-        <div id="infoSec" class="section" style="display:none">
-            <div class="info-card">
-                <h3><i class="fas fa-bullseye"></i> أهداف المبادرة:</h3>
-                <ul class="info-list">
-                    <li><i class="fas fa-book-reader"></i> خدمة المخرجات التعليمية (حفظ النصوص الأدبية المقررة).</li>
-                </ul>
-            </div>
-            <div class="info-card">
-                <h3><i class="fas fa-cogs"></i> آلية تنفيذ المبادرة:</h3>
-                <ul class="info-list">
-                    <li><i class="fas fa-hand-pointer"></i> يختار الطالب النص المقرر حفظه.</li>
-                    <li><i class="fas fa-tasks"></i> يختار طريقة التسميع (شفوي أو كتابي).</li>
-                    <li><i class="fas fa-video"></i> إرسال فيديو مصور في حال اختيار التسميع الشفوي.</li>
-                </ul>
-            </div>
-            <div class="info-card">
-                <h3><i class="fas fa-clipboard-check"></i> شروط المبادرة:</h3>
-                <ul class="info-list">
-                    <li><i class="fas fa-check-circle"></i> التمكن من حفظ النصوص والترتيب الصحيح.</li>
-                    <li><i class="fas fa-volume-up"></i> مراعاة النطق الصحيح والأداء المعبر.</li>
-                    <li><i class="fas fa-film"></i> يكون الفيديو أصلياً (بدون مونتاج).</li>
-                    <li><i class="fas fa-user-tie"></i> الالتزام بالزي المدرسي الكامل.</li>
-                </ul>
-            </div>
-            <div class="info-card" style="background: #eefdf4; border-right-color: var(--success);">
-                <h3><i class="fas fa-calendar-alt"></i> فترة تنفيذ المبادرة:</h3>
-                <ul class="info-list">
-                    <li><i class="fas fa-clock"></i> يتم التنفيذ <b>خلال الفصل الدراسي الأول</b>.</li>
-                </ul>
-            </div>
+    <div class="card">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="openTab('periodTab', this)">تقرير فترة</button>
+            <button class="tab-btn" onclick="openTab('dailyTab', this)">غياب يوم</button>
+            <button class="tab-btn" onclick="openTab('historyTab', this)">بحث طالب</button>
         </div>
 
-        <div id="uploadSec" class="section" style="display:none">
-            <div class="admin-header" style="text-align:center">
-                <select id="cls" onchange="loadStu()" style="width:100%; padding:15px; border-radius:12px; margin-bottom:10px;"><option value="">اختر الفصل</option><option value="6-1">6-1</option><option value="6-2">6-2</option></select>
-                <select id="stu" style="width:100%; padding:15px; border-radius:12px; margin-bottom:20px;"><option>اختر الاسم</option></select>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                    <button class="menu-btn" style="background:var(--primary)" onclick="doUploadDevice()"><i class="fas fa-file-upload"></i> من الجهاز</button>
-                    <button class="menu-btn" style="background:var(--danger)" onclick="doUploadCamera()"><i class="fas fa-video"></i> الكاميرا</button>
-                </div>
-                <video id="previewBox" height="200" style="display:none; width:100%; margin-top:15px; border-radius:15px; object-fit: cover;" controls></video>
-                <div class="progress-container" id="progCont"><div id="progressBar"></div></div>
-                <p id="upStatus" style="margin-top:10px; font-weight:bold; color: var(--primary)"></p>
-                <button id="finalUploadBtn" onclick="sendToFirebase()"><i class="fas fa-paper-plane"></i> إرسال الفيديو النهائي</button>
-                <input type="file" id="fIn" style="display:none" onchange="handleFileSelect()">
+        <div id="periodTab" class="tab-content active">
+            <div style="display: flex; gap: 5px; margin-bottom:10px;">
+                <input type="date" id="periodStart" style="flex:1; padding:10px; border-radius:8px; border:2px solid #eee;">
+                <input type="date" id="periodEnd" style="flex:1; padding:10px; border-radius:8px; border:2px solid #eee;">
             </div>
+            <button class="btn-action" onclick="generatePeriodReport()">توليد تقرير الفترة</button>
+            <div id="periodResultArea" style="margin-top:15px;"></div>
+            <button id="exportPeriodBtn" class="btn-excel" style="display:none;" onclick="exportPeriodToExcel()">?? تصدير الفترة إلى Excel</button>
         </div>
 
-        <div id="adminSec" class="section" style="display:none">
-            <div class="admin-header">
-                <div class="stats-grid">
-                    <div class="stat-card"><i class="fas fa-users"></i><span>الإجمالي</span><b id="t-total">0</b></div>
-                    <div class="stat-card"><i class="fas fa-check-double" style="color:var(--success)"></i><span>أرسل</span><b id="t-sent">0</b></div>
-                    <div class="stat-card"><i class="fas fa-clock" style="color:var(--danger)"></i><span>متبقي</span><b id="t-not">0</b></div>
-                    <div class="stat-card"><i class="fas fa-percent" style="color:var(--info)"></i><span>النسبة</span><b id="t-perc">0%</b></div>
-                </div>
-                <select id="admFilter" onchange="renderAdmin()" style="width:100%; padding:15px; border-radius:15px; margin-top:15px; border:2px solid #eee;">
-                    <option value="all">كل الفصول</option><option value="6-1">6-1</option><option value="6-2">6-2</option>
-                </select>
-            </div>
-            <div id="admList"></div>
+        <div id="dailyTab" class="tab-content">
+            <input type="date" id="adminDateSelector" style="width:100%; padding:10px; border-radius:8px; border:2px solid #eee;" onchange="viewOldDate(this.value)">
+            <select id="adminClassEditSelector" class="form-select" style="margin-top:10px; display:none;" onchange="viewOldDate(document.getElementById('adminDateSelector').value)">
+                <option value="">-- اختر الصف للتعديل --</option>
+                <optgroup label="خامس"><option value="5-1">خامس 1</option><option value="5-2">خامس 2</option><option value="5-3">خامس 3</option></optgroup>
+                <optgroup label="سادس"><option value="6-1">سادس 1</option><option value="6-2">سادس 2</option></optgroup>
+                <optgroup label="سابع"><option value="7-1">سابع 1</option><option value="7-2">سابع 2</option></optgroup>
+                <optgroup label="ثامن"><option value="8-1">ثامن 1</option><option value="8-2">ثامن 2</option><option value="8-3">ثامن 3</option></optgroup>
+            </select>
+            <div id="oldDateResult" style="margin-top:15px;"></div>
+            <button id="updateDailyBtn" class="btn-update" style="display:none;" onclick="updateFirebaseOldDate()">?? اعتماد التعديلات وحفظها</button>
+            <button id="exportDailyBtn" class="btn-excel" style="display:none;" onclick="exportDailyToExcel()">?? تصدير اليوم إلى Excel</button>
         </div>
 
-        <div id="textsSec" class="section" style="display:none">
-            <div class="info-card">
-                <h3>قصيدة: مدرسة الأخلاق (أنشطة وإلقاء للصف السادس)</h3>
-                <iframe width="100%" height="210" src="https://www.youtube.com/embed/Z51Vj8c-3aw" frameborder="0" allowfullscreen style="border-radius:15px"></iframe>
-            </div>
-            <div class="info-card">
-                <h3>قصيدة: مدرسة الأخلاق (إلقاء أبيات الشاعر معروف الرصافي)</h3>
-                <iframe width="100%" height="210" src="https://www.youtube.com/embed/Pja9JplcKLI" frameborder="0" allowfullscreen style="border-radius:15px"></iframe>
-            </div>
+        <div id="historyTab" class="tab-content">
+            <input type="text" id="studentSearch" style="width:100%; padding:12px; border:2px solid var(--accent); border-radius:8px;" placeholder="ابحث عن اسم الطالب..." oninput="showSuggestions(this.value)">
+            <div id="suggestionsBox" style="background:#fff; border:1px solid #ddd; display:none; max-height: 200px; overflow-y: auto; position: absolute; width: 85%; z-index: 100;"></div>
+            <div id="historyResult" style="margin-top:20px;"></div>
+            <button id="exportStudentHistoryBtn" class="btn-excel" style="display:none; background: var(--info);" onclick="exportIndividualStudentExcel()">?? تصدير سجل غياب الطالب (Excel)</button>
         </div>
-
-        <div id="gallerySec" class="section" style="display:none"><div id="gList"></div></div>
-        <div id="honorSec" class="section" style="display:none"><div id="hList" style="display:grid; grid-template-columns:1fr 1fr; gap:10px"></div></div>
     </div>
+</div>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <script>
-        /* تسجيل Service Worker المحدث لمنع مشاكل التثبيت */
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js?v=2')
-                .then(reg => console.log('PWA Ready:', reg.scope))
-                .catch(err => console.error('PWA Error:', err));
+<footer class="page-footer">
+    <div>تصميم أ / علي محمد علي</div>
+    <div>مدير المدرسة أ / رمضان سيد إبراهيم</div>
+</footer>
+
+<script>
+    const firebaseConfig = { apiKey: "AIzaSyAzmsbAn5jVh293t7X79NmyzSZFDFXFpdg", databaseURL: "https://oman-school-app-default-rtdb.firebaseio.com" };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    function updateClock() {
+        const now = new Date();
+        const days = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+        document.getElementById('clock-day').innerText = days[now.getDay()];
+        document.getElementById('clock-date').innerText = now.toLocaleDateString('ar-EG');
+        document.getElementById('clock-time').innerText = now.toLocaleTimeString('ar-EG');
+        setTimeout(updateClock, 1000);
+    }
+
+    const قائمة_الطلاب_كاملة = {
+        "5-1": [
+            "سهيل بن أحمد بن سهيل سالم خوار",
+            "سهيل بن سالم بن محمد سعد خوار",
+            "طلال بن مرشد بن بخيت عبدالله مسن",
+            "أسامة محمد خليل ابراهيم",
+            "احمد عبد العظيم حسين الطاهر",
+            "احمد عواض عبد الله عبد اللطيف",
+            "ادم عيد محمد مرعى حسين",
+            "المحناء بن سالم بن سعيد المحناء جداد",
+            "اواب محمد حمد النيل احمد",
+            "بخيت بن أحمد بن بخيت أحمد جداد الكثيري",
+            "بخيت بن سالم بن مبخوت محمد الراشدي",
+            "بخيت بن محمد بن سالم عبد الله الراشدي",
+            "حسين بن علي بن محمد بخيت منيف خوار",
+            "خالد بن محمد بن سعيد ظاوي العامري",
+            "خلفان بن مرشد بن خلفان سويد المعولي",
+            "روح الله نظري",
+            "سالم بن حسن بن سالم عبد الله الراشدي",
+            "سالم بن عبد الله بن سالم عبد الله الراشدي",
+            "سالم بن عبد الله بن سالم عبد الله الراشدي",
+            "سالم بن محمد بن بخيت سالم خوار",
+            "سالم بن محمد بن سعد حفيظ خوار",
+            "سالم بن مسلم بن بخيت رويزم صندل المعشني",
+            "سعد بن عبد الله بن سعد سعيد جداد",
+            "سعود بن غصن بن يحيى مسلم الجنيبي",
+            "يحيى بن يعقوب بن يحيى مسلم الجنيبي",       
+     "يوسف بن يعقوب بن جمعه خميس الخميسي"
+        ],
+        "5-2": ["أحمد بن حمدان بن أحمد محمد مسن الكثيري", "سعيد بن حسن بن سعيد سعد خوار", "سعيد بن علي بن بخيت محمد الراشدي", "سعيد بن محمد بن احمد محمد الهزار الكثيري", "سعيد بن محمد بن سعيد محمد خوار", "سلمان بن حمزة بن مسلم نقل ربعات الكثيري", "سلمان بن عبد العزيز بن بخيت حم مسن", "سهيل بن احمد بن سلطان اسد الراشدي", "سهيل بن احمد بن مرعي نشران الشعشعي", "سهيل بن عبد الله بن محمد عبدالله خوار", "سهيل بن محمد بن سهيل سعيد المسهلي", "شايع بن نواف بن أحمد محمد مسن", "شهاب بن موسى بن نصيب نافع الخميسي", "صدام بن محمد بن سالم قائل جداد", "صدام حسين محمد السطري", "طالب ظفر احمد التام", "عبد الله بن علي بن مبخوت سالم الراشدي", "عزام بن راكان بن مسلم محمد مسن الكثيري", "علي بن سالم بن ظويهر سالم جداد", "علي بن سعد بن محمد سعيد خوار", "علي سعيدان سعيد الراشدي", "عمر خالد العبد الرزاق", "غانم بن محمد بن صالح احمد جداد", "غيث بن سعيد بن صالح علي المسهلي", "نبراس فتحي الغربي"],
+        "5-3": ["أنس محمود عمر عبد الحكيم بلال",  "فهد بن سهيل بن أحمد سالم مسن", "فيصل بن سعيدان بن بخيت رويزم صندل", "كثير بن محمد بن مسلم أحمد جداد", "كريم محمود كريم ابراهيم احمد", "ليث بن فهد بن توفيق جمعه البحري", "مؤمن عمار محمد مؤمن محمد", "مبروك بن محمد بن سالم مبارك المسهلي", "محسن بن أحمد بن سهيل سالم خوار", "محمد بن تركي بن محمد سهيل مسن", "محمد بن حمود بن سالم سعيد الوائلي", "محمد بن سعيد بن العبد زايد مسن الكثيري", "محمد بن سعيد بن محمد سعد جداد", "محمد بن عبد الله بن سهيل حافظ خوار", "محمد بن علي بن صالح علي المسهلي", "محمد بن عمر بن مبارك عبد الله العوبثاني", "محمد بن مالك بن مسلم سعيد مسن", "محمد بن منهل بن مسلم سهيل جداد", "محمود محمد رجب محمد البني", "مسلم بن حمد بن مسلم أحمد جداد", "مسلم بن عبد الله بن سالم احمد جداد", "مشعل بن محمد بن سالم علي الحمر", "يوسف بن سالم بن محمد الطوف الكثيري"],
+        "6-1": ["أحمد بن سالم بن سعيد حسن خوار", "إلياس بن ابراهيم بن حمد مسعود العامري", "الأمين محمد احمد الطيب", "تركي بن محمد بن سعيد مسلم مسن","تميم بن نائف بن محمد سعيد مياح المسهلي", "حسين محمد يوسف خضر", "خالد أحمد حسن التابعي",  "خالد بن عمرو بن غفيل سالم خوار", "سالم بن عبد الله بن سالم احمد جداد", "سالم بن محمد بن سالم صالح جداد", "سالم بن مسلم بن سهيل محمد الراشدي", "سعود بن سالم بن ظويهر سالم جداد", "سعود بن شهاب بن نافع مسلم المسهلي", "سعيد بن عبد الله بن بقال خويدع خوار", "سلطان بن محمد بن علي مهوي العامري", "عامر بن سهيل بن عامر سليم قمصيت", "عبد الرحمن احمد فوزي عبد الفتاح", "عبد الله بن محمد بن عيظه سعيد جداد الكثيري", "علي بن سعد بن مسلم سعيد الراشدي", "عوض بن محمد بن عوض خادم الوهيبي", "غانم بن محمد بن سليم مسلم الجنيبي", "غانم بن محمد بن مبارك بخيت جداد", "فهد بن محمد بن سالم مسلم المسهلي", "مازن مصطفى محمد احمد على", "محمد احمد محمود عبد الحميد", "محمد بن حسين بن سالم مبخوت خوار", "محمد بن سعيد بن سالم خويتم مسن", "محمد بن مسلم بن محمد بخيت مسن", "مروان سلامه حسين علي شليل", "مسلم بن سعيد بن سعد سعيد جداد", "مسلم بن محمد بن مسلم احمد جداد"],
+        "6-2": ["أمجد بن سعيد بن خميس سعيد الشكيلي",  "تيمور بن أحمد بن مبروك أحمد مسن", "خالد بن أحمد بن مسلم محمد مسن", "خالد بن راشد بن سعيد سالم مسن", "خالد بن محمد بن مسلم سنكور خوار", "رزين بن مرشد بن خلفان سويد المعولي", "سالم بن حمد بن مبخوت حماده جداد", "سالم بن نايف بن سالم عيضه جداد", "سعيد بن بخيت بن عبدي بخيت خوار", "سعيد بن خالد بن بخيت زايد مسن", "سعيد بن صالح بن سهيل علي بيت جداد", "سلمان بن ناجي بن سالم سعد خوار", "سهيل بن معمر بن سهيل مسلم جداد الكثيري", "صالح يحيى مسلم", "صقر بن محمد بن العبد سهيل جداد", "عبد الرحمن أيمن هشام سقاو نايل", "عبد الرحمن بن علي بن سهيل علي زوله", "عبد الرحمن سامي محمد احمد يوسف المزين", "عمار بن ياسر بن مبروك احمد مسن", "محمد بن بخيت بن احمد محمد مسن", "محمد بن سالم بن سهيل مطر جداد", "محمد بن عامر بن محمد احمد المسهلي", "محمد بن فهد بن سالم خويتم مسن", "مسلم بن بخيت بن عبدي بخيت خوار", "همدان بن احمد بن عبدالله محمد جداد", "هيثم بن فواز بن سليمان عبد الله الهاشمي", "يوسف بن عبد الله بن علي عبيد الشحي"],
+        "7-1": ["الخطاب محمد حمد النيل احمد", "الخليل بن غسان بن طالب بدر الصمصامي", "الليث بن إبراهيم بن ناصر علي الحوسني", "الهجرس بن سليمان بن مبارك سليمان", "انس محمود محمد احمد", "اواب عبد العظيم حسين الطاهر", "سالم بن ثاني بن محمد بخيت خوار", "سالم بن حمود بن سالم سعيد الوائلي", "سالم بن محمد بن سالم عبد الله الراشدي", "سعود بن عبد العزيز بن بخيت حم مسن", "سعيد بن حاتم بن سعيد محمد بيت مسن", "سعيد بن مسلم بن سعيد سهيل مسن", "سهيل بن سليم بن سهيل سليم قمصيت", "سهيل محسن سهيل ال خوار", "سيف بن خميس بن سالم محمد الجنيبي", "سيف بن نائف بن عبد الله مبارك جداد", "عبد الرحمن بن محمد بن سعيد سالم مسن", "عبد الله بن غانم بن سالم عبد الله الراشدي", "عبد الله بن محمد بن احمد رويكان خوار", "عبد الله عواض عبد الله عبد اللطيف", "علي بن حامد بن مسلم محمد مسن الكثيري", "علي بن سعيد بن محمد سالم خوار", "مبروك بن محمد بن سالم ظويهر جداد", "متعب بن سعيد بن عبد الله محمد جداد", "محمد بن جميل بن عبدي بخيت خوار", "مسلم بن بدر بن مسلم سعيد مسن"],
+        "7-2": ["الشهم بن واسط بن سهيل سعيد المسهلي", "المغيرة بشري محجوب احمد", "بخيت بن سعيد بن مبارك بخيت جداد", "سالم بن احمد بن سهيل سالم خوار", "سالم بن حاتم بن سالم سعد خوار", "سالم بن سلطان بن سليم غانم الراشدي", "سالم بن سهيل بن سالم المحناء جداد", "سالم بن عبد الله بن احمد الشاوي جداد", "سعد بن كرامه بن سالم علي خوار", "سعيد بن عادل بن سالم خويتم مسن بيت", "سلطان بن مسلم بن سلطان اسد الراشدي", "عامر بن خالد بن سالم مسن", "عبد الله بن حسين بن علي محمد آل عبد السلام", "عبد الله بن عبدي بن بخيت زولة خوار", "عبد الله سعيدان سيعد الراشدي", "غازي بن محمد بن صالح احمد جداد", "غيث بن احمد بن بخيت معيوف المسهلي", "مازن تامر محمد محمد علوش", "مازن عبد السميع سليمان خميس", "ماهر بن محمد بن مستهيل محمد صفرار", "محمد بن عبد الله بن محمد عبدالله خوار", "محمد محسن سهيل ال خوال", "مدرك بن خالد بن سعيد بخيت الشعشعي", "مسلم بن سالم بن عبد الله سعيد الراشدي", "مسلم بن محمد بن سعيد مسلم جداد", "مسلم بن محمد بن مسلم سعيد جداد", "يوسف بن محمد بن بخيت سالم خوار"],
+        "8-1": ["احمد امجد احمد أحمد نجاد", "أحمد بن سعيد بن صالح أحمد جداد", "أمير بن سعيد بن محمد المشيخي", "احمد بن محمد بن احمد سعيد مسن", "العبد بن محمد بن العبد زائد مسن", "بخيت بن احمد بن بخيت فريح مسن الكثيري", "تميم بن محمد بن سهيل جديد جداد الكثيري", "تميم بن محمد بن مبروك عبد الله المسهلي", "حمد بن محمد بن احمد الهزار الكثيري", "حمد بن محمد بن سعيد مسن", "راشد بن محمد بن أحمد محمد مسن الكثيري", "سالم بن سعد بن صلاح رعفيت", "سالم بن سلطان بن سالم أحمد مسن","سعيد بن شهاب بن احمد محمد مسن", "سعيد بن محمد بن صالح جداد", "سعيد بن محمد بن مبارك بخيت جداد", "سلطان بن حمزة بن مسلم نفل ربعات الكثير", "عامر بن محمد بن مسلم بخيت المسهلي", "عبد الله بن سالم بن سهيل سليم قمصيت", "عمر احمد محمد احمد", "عمر عبد القوى ابراهيم ابراهيم", "فريح بن عبد الله بن فريح احمد مسن", "مجتبى عيسى محمد" , "مسلم بن محمد بن عوض خادم الوهيبي","مشعل بن محمد بن مبارك احمد مسن", "نصر بن سالم بن ظويهر سالم جداد", "ياسر بن عادل بن سالم مسن بيت كثير", "يوسف عمر احمد عبد الرحمن حاكم  "],
+        "8-2": ["إبراهيم محمد سالم السطري", "العباس بن مبخوت بن سالم مسن بيت كثير", "المنذر بن فواز بن سليمان عبد الله الهاشمي", "أمير بن ناصر بن عبد الرحمن عبد الله", "حسين سلامه حسين علي شليل", "خالد بن سالم بن علي عبدالله العلوي", "خالد بن محمد بن سهيل مطر جداد", "خالد بن مسلم بن أحمد جداد", "رويزم بن مسلم بن بخيت رويزم صندل", "سالم بن مبارك بن سهيل محمد الراشدي", "سعد بن محمد بن سعد حفيظ خوار", "سعود بن عبد الله بن بخيت زايد مسن", "سعيد بن عبد الله بن سالم أحمد جداد", "سعيد بن مسلم بن عبد الله سعيد جداد", "سلطان بن مسلم بن سالم صالح جداد", "عبد العزيز بن مسلم بن محمد بن شويغل مسن", "عبد الله بن عارف بن سالم جداد","عبد الله زكريا محمد الأمير محمد", "علي بن سعيد بن علي خوار", "عمر فؤاد فهمي محمد فؤاد", "فهد بن غانم بن سالم جداد", "محسن معتصم محمد الإمام", "محمد بن سالم بن مبخوت محمد الراشدي", "مسلم بن سالم بن سهيل الراشدي", "مصطفى محمود كريم إبراهيم أحمد", "منيف بن سعيد بن محمد سالم جداد", "هادف بن سعيد بن هادف حسن شحري خوار", "وائل بن حمود بن سالم سعيد الوائلي"],
+        "8-3": ["أحمد بن مسلم بن سعيد سعد جداد", "أحمد بن نائف بن عبدالله محمد جداد", "الطلح بن سالم بن حسن علي خوار", "بخيت مسلم سالم مبخوت الراشدي", "بدر بن عامر بن مسلم الرحابة جداد", "حثيث بن سلطان بن محمد سهيل مسن", "حمد بن محمد بن عبدالله محمد جداد الكثيري", "سالم بن أحمد بن سالم جداد", "سعيد بن مبارك بن مسلم الكمام الراشدي", "سهيل بن عبد الله بن سهيل حافظ خوار", "عبد الله أمير عبدالله نصر", "عبد الله بن محمد بن علي مهوي العامري", "علي بن ثاني بن علي سالم جداد بيت كثير", "مبارك بن سعيد بن سالم خويتم مسن", "محسن بن عقيل بن سالم سعد خوار", "محمد بن بخيت بن فرج السنح شهوان", "محمد بن علي بن بخيت محمد الراشدي", "محمد بن غانم بن الرضه سلاوم جداد", "محمد بن مسلم بن محمد مسلم جداد", "محمد بن ناصر بن عبد الله جداد", "محمد بن هيثم بن سالم فائل جداد الكثيري", "مسلم بن حسن بن هادف حسن شحري خوار", "مشعل بن نائف بن محمد سعيد مياح المسهلي", "ناصر بن علي بن ناصر سهيل جداد", "نور الدين محسن العلي", "هيثم بن محمد بن سالم قائل جداد"]
+    };
+
+    let selectedLesson = 1;
+    let todayKey = new Date().toISOString().split('T')[0];
+    let g_periodDataRaw = []; 
+    let g_dailyDataRaw = [];
+    let g_selectedStudentData = [];
+
+    function setLesson(num) { selectedLesson = num; fetchClassData(); }
+
+    function checkIsAbsent(dayData, cls, studentIdx) {
+        if (!dayData || !dayData[cls]) return false;
+        let classData = dayData[cls];
+        for (let lessonKey in classData) {
+            if (classData[lessonKey] && classData[lessonKey][studentIdx] && classData[lessonKey][studentIdx].status === 'a') return true;
+        }
+        return false;
+    }
+
+    function fetchClassData() {
+        const cls = document.getElementById('classSelect').value;
+        if(!cls) return;
+        database.ref(`attendance/${todayKey}/${cls}/حصة_${selectedLesson}`).once('value', (snap) => {
+            const data = snap.val() || {};
+            const listBody = document.getElementById('studentsListBody');
+            listBody.innerHTML = "";
+            (قائمة_الطلاب_كاملة[cls] || []).forEach((name, i) => {
+                let status = data[i]?.status || 'p';
+                let color = status=='a'?'var(--danger)':(status=='l'?'var(--accent)':(status=='ex'?'var(--leave)':'var(--success)'));
+                listBody.innerHTML += `<tr><td>${i+1}</td><td style="text-align:right; padding-right:15px;">${name}</td><td><select id="stat${i}" onchange="updateRowColor(this); updateTeacherStats('${cls}')" style="border:2px solid ${color}; padding:5px; border-radius:5px;"><option value="p" ${status=='p'?'selected':''}>حاضر</option><option value="a" ${status=='a'?'selected':''}>غائب</option><option value="l" ${status=='l'?'selected':''}>متأخر</option><option value="ex" ${status=='ex'?'selected':''}>مستأذن</option></select></td></tr>`;
             });
-        }
-
-        const studentData = { 
-            "6-1": ["أحمد بن سالم بن سعيد حسن خوار", "إلياس بن ابراهيم بن حمد مسعود العامري", "الأمين محمد احمد الطيب", "تركي بن محمد بن سعيد مسلم مسن", "حسين محمد يوسف خضر", "خالد أحمد حسن التابعي", "خالد بن راشد بن سعيد سالم مسن", "خالد بن عمرو بن غفيل سالم خوار", "سالم بن عبد الله بن سالم احمد جداد", "سالم بن محمد بن سالم صالح جداد", "سالم بن مسلم بن سهيل محمد الراشدي", "سعود بن سالم بن ظويهر سالم جداد", "سعود بن شهاب بن نافع مسلم المسهلي", "سعيد بن عبد الله بن بقال خويدع خوار", "سلطان بن محمد بن علي مهوي العامري", "عامر بن سهيل بن عامر سليم قمصيت", "عبد الرحمن احمد فوزي عبد الفتاح", "عبد الله بن محمد بن عيظه سعيد جداد الكثيري", "علي بن سعد بن مسلم سعيد الراشدي", "عوض بن محمد بن عوض خادم الوهيبي", "غانم بن محمد بن سليم مسلم الجنيبي", "غانم بن محمد بن مبارك بخيت جداد", "فهد بن محمد بن سالم مسلم المسهلي", "مازن مصطفى محمد احمد على", "محمد احمد محمود عبد الحميد", "محمد بن حسين بن سالم مبخوت خوار", "محمد بن سعيد بن سالم خويتم مسن", "محمد بن مسلم بن محمد بخيت مسن", "مروان سلامه حسين علي شليل", "مسلم بن سعيد بن سعد سعيد جداد", "مسلم بن محمد بن مسلم احمد جداد"],
-            "6-2": ["أمجد بن سعيد بن خميس سعيد الشكيلي", "تميم بن نائف بن محمد سعيد مياح المسهلي", "تيمور بن أحمد بن مبروك أحمد مسن", "خالد بن أحمد بن مسلم محمد مسن", "خالد بن محمد بن مسلم سنكور خوار", "رزين بن مرشد بن خلفان سويد المعولي", "سالم بن حمد بن مبخوت حماده جداد", "سالم بن نايف بن سالم عيضه جداد", "سعيد بن بخيت بن عبدي بخيت خوار", "سعيد بن خالد بن بخيت زايد مسن", "سعيد بن صالح بن سهيل علي بيت جداد", "سلمان بن ناجي بن سالم سعد خوار", "سهيل بن معمر بن سهيل مسلم جداد الكثيري", "صالح يحيى مسلم", "صقر بن محمد بن العبد سهيل جداد", "عبد الرحمن أيمن هشام سقاو نايل", "عبد الرحمن بن علي بن سهيل علي زوله", "عبد الرحمن سامي محمد احمد يوسف المزين", "عمار بن ياسر بن مبروك احمد مسن", "محمد بن بخيت بن احمد محمد مسن", "محمد بن سالم بن سهيل مطر جداد", "محمد بن عامر بن محمد احمد المسهلي", "محمد بن غازي بن كفيش جعيد جداد الكثيري", "محمد بن فهد بن سالم خويتم مسن", "مسلم بن بخيت بن عبدي بخيت خوار", "همدان بن احمد بن عبدالله محمد جداد", "هيثم بن فواز بن سليمان عبد الله الهاشمي", "يوسف بن عبد الله بن علي عبيد الشحي"]
-        };
-        var db, subs = {};
-        firebase.initializeApp({ databaseURL: "https://ahfaz-w-aktob-default-rtdb.firebaseio.com/" });
-        db = firebase.database();
-        db.ref('submissions').on('value', s => { subs = s.val() || {}; updateUI(); renderAdmin(); });
-
-        function checkAdmin() { let p = prompt("أدخل كلمة مرور الإدارة:"); if(p === "ali2026") openSec('admin'); else alert("خطأ!"); }
-        function openSec(id) { document.getElementById('mainMenu').style.display='none'; document.getElementById('contentArea').style.display='block'; document.querySelectorAll('.section').forEach(s=>s.style.display='none'); document.getElementById(id+'Sec').style.display='block'; window.scrollTo(0,0); }
-        function goHome() { document.getElementById('mainMenu').style.display='flex'; document.getElementById('contentArea').style.display='none'; }
-
-        function loadStu() {
-            const cls = document.getElementById('cls').value;
-            const stu = document.getElementById('stu');
-            stu.innerHTML = '<option>اختر الاسم</option>';
-            if(studentData[cls]) studentData[cls].forEach(n => { let o=document.createElement('option'); o.value=n; o.text=n; stu.add(o); });
-        }
-
-        function doUploadDevice() { const f = document.getElementById('fIn'); f.removeAttribute('capture'); f.setAttribute('accept', 'video/*'); f.click(); }
-        function doUploadCamera() { const f = document.getElementById('fIn'); f.setAttribute('accept', 'video/*'); f.setAttribute('capture', 'camcorder'); f.click(); }
-
-        let selectedFile = null;
-        function handleFileSelect() {
-            selectedFile = document.getElementById('fIn').files[0];
-            if(!selectedFile) return;
-            const preview = document.getElementById('previewBox');
-            preview.src = URL.createObjectURL(selectedFile);
-            preview.style.display = 'block';
-            document.getElementById('finalUploadBtn').style.display = 'block';
-            document.getElementById('upStatus').innerText = "تم اختيار الفيديو، اضغط إرسال نهائي";
-        }
-
-        function sendToFirebase() {
-            const name = document.getElementById('stu').value;
-            const cls = document.getElementById('cls').value;
-            if(!selectedFile || name.includes("اختر")) return alert("أكمل البيانات");
-            document.getElementById('progCont').style.display = 'block';
-            document.getElementById('finalUploadBtn').style.display = 'none';
-            const fd = new FormData(); fd.append('file', selectedFile); fd.append('upload_preset', "Ahfaz-W-Aktob");
-            const xhr = new XMLHttpRequest(); xhr.open('POST', 'https://api.cloudinary.com/v1_1/duhzhaxxc/upload', true);
-            xhr.upload.onprogress = (e) => { if (e.lengthComputable) { const p = Math.round((e.loaded / e.total) * 100); document.getElementById('progressBar').style.width = p + '%'; document.getElementById('upStatus').innerText = `جاري الرفع: ${p}%`; } };
-            xhr.onload = function() {
-                if (xhr.status === 200) {
-                    const res = JSON.parse(xhr.responseText);
-                    db.ref('submissions/'+cls).push({ student:name, video:res.secure_url, featured:false, medal:false, cert:false })
-                    .then(() => { document.getElementById('upStatus').innerHTML = "<span style='color:var(--success)'>✅ تم الإرسال بنجاح! شكراً لك.</span>"; setTimeout(() => location.reload(), 2000); });
-                }
-            };
-            xhr.send(fd);
-        }
-
-        function renderAdmin() {
-            const filter = document.getElementById('admFilter').value;
-            const list = document.getElementById('admList'); if(!list) return;
-            list.innerHTML = ""; let sc=0, tc=0;
-            Object.keys(studentData).forEach(cls => {
-                studentData[cls].forEach(name => {
-                    let v=null, k=null, isF=false, isM=false, isC=false;
-                    if(subs[cls]) Object.keys(subs[cls]).forEach(key => { if(subs[cls][key].student===name){ v=subs[cls][key].video; k=key; isF=subs[cls][key].featured; isM=subs[cls][key].medal; isC=subs[cls][key].cert; } });
-                    tc++; if(v) sc++;
-                    if(filter!=="all" && filter!==cls) return;
-                    const row = document.createElement('div'); row.className = `student-row ${v?'sent':''}`;
-                    row.innerHTML = `<div style="display:flex; justify-content:space-between"><b>${name}</b> <small>${v?'✓ أرسل':'متبقي'}</small></div>
-                        ${v?`<div class="action-btns">
-                            <button class="btn-act btn-view" onclick="window.open('${v}')"><i class="fas fa-play"></i> فيديو</button>
-                            <button class="btn-act btn-star ${isF?'active':''}" onclick="mark('${cls}','${k}','featured',${isF})"><i class="fas fa-star"></i> متميز</button>
-                            <button class="btn-act btn-medal ${isM?'active':''}" onclick="mark('${cls}','${k}','medal',${isM})"><i class="fas fa-award"></i> وسام</button>
-                            <button class="btn-act btn-cert ${isC?'active':''}" onclick="mark('${cls}','${k}','cert',${isC})"><i class="fas fa-certificate"></i> شهادة</button>
-                        </div>`:''}`;
-                    list.appendChild(row);
-                });
-            });
-            document.getElementById('t-total').innerText = tc; document.getElementById('t-sent').innerText = sc; document.getElementById('t-not').innerText = tc - sc; document.getElementById('t-perc').innerText = tc > 0 ? Math.round((sc/tc)*100) + "%" : "0%";
-        }
-
-        function mark(cls, k, field, cur) { let d = {}; d[field] = !cur; db.ref(`submissions/${cls}/${k}`).update(d); }
-
-        function updateUI() {
-            let h="", g="";
-            Object.values(subs).forEach(c => Object.values(c).forEach(s => {
-                h += `<div class="stat-card">
-                        ${s.medal?'<i class="fas fa-award medal-badge"></i>':''}
-                        ${s.cert?'<i class="fas fa-certificate cert-badge"></i>':''}
-                        <b>${s.student}</b>
-                      </div>`;
-                if(s.featured) g += `<div class="info-card" style="text-align:center"><b>النجم المتميز: ${s.student}</b><video src="${s.video}" controls style="width:100%; border-radius:15px; margin-top:10px"></video></div>`;
-            }));
-            document.getElementById('hList').innerHTML = h || "لا يوجد مشاركات";
-            document.getElementById('gList').innerHTML = g || "بانتظار المتميزين";
-        }
-
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            document.getElementById('pwaInstallBtn').style.display = 'inline-block';
+            document.getElementById('mainAppArea').style.display = "block";
+            updateTeacherStats(cls);
         });
+    }
 
-        function installPWA() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        document.getElementById('pwaInstallBtn').style.display = 'none';
+    function updateRowColor(sel) { sel.style.borderColor = sel.value=='a'?'var(--danger)':(sel.value=='l'?'var(--accent)':(sel.value=='ex'?'var(--leave)':'var(--success)')); }
+
+    function updateTeacherStats(cls) {
+        const total = (قائمة_الطلاب_كاملة[cls] || []).length;
+        let abs = 0; (قائمة_الطلاب_كاملة[cls] || []).forEach((_, i) => { if(document.getElementById('stat'+i)?.value === 'a') abs++; });
+        let pres = total - abs;
+        document.getElementById('teacherStats').style.display = 'grid';
+        document.getElementById('tTotal').innerText = total; document.getElementById('tPres').innerText = pres; document.getElementById('tAbs').innerText = abs;
+        document.getElementById('tPercP').innerText = total > 0 ? Math.round((pres/total)*100) + '%' : '0%';
+        document.getElementById('tPercA').innerText = total > 0 ? Math.round((abs/total)*100) + '%' : '0%';
+    }
+
+    function pushToCloud() {
+        const cls = document.getElementById('classSelect').value; if(!cls) return;
+        let update = {}; (قائمة_الطلاب_كاملة[cls] || []).forEach((_, i) => { update[i] = { status: document.getElementById('stat'+i).value }; });
+        database.ref(`attendance/${todayKey}/${cls}/حصة_${selectedLesson}`).set(update).then(() => alert("? تم حفظ غياب الحصة " + selectedLesson));
+    }
+
+    function adminShortcut() { 
+        window.cCount = (window.cCount || 0) + 1;
+        if(window.cCount === 3) document.getElementById('loginArea').style.display="block";
+        setTimeout(()=>window.cCount=0, 2000);
+    }
+
+    function checkPassword() {
+        if(document.getElementById('passInput').value === "12345678910") {
+            document.getElementById('loginArea').style.display = "none";
+            document.getElementById('adminPanel').style.display = "block";
+            startAdminSync();
+        } else alert("رمز غير صحيح");
+    }
+
+    function startAdminSync() {
+        database.ref(`attendance/${todayKey}`).on('value', (snap) => {
+            const dayData = snap.val() || {};
+            let schTotal = 0, schAbs = 0, html = "";
+            Object.keys(قائمة_الطلاب_كاملة).sort().forEach(cls => {
+                let cSize = قائمة_الطلاب_كاملة[cls].length;
+                let cAbs = 0;
+                قائمة_الطلاب_كاملة[cls].forEach((_, i) => { if(checkIsAbsent({[cls]: dayData[cls]}, cls, i)) cAbs++; });
+                schTotal += cSize; schAbs += cAbs;
+                let pPerc = cSize > 0 ? Math.round(((cSize-cAbs)/cSize)*100) : 0;
+                let clsPrefix = cls[0];
+                html += `<tr class="row-${clsPrefix}"><td>${cls}</td><td>${cSize}</td><td>${cSize-cAbs}</td><td style="color:var(--danger)">${cAbs}</td><td>${pPerc}%</td><td>${100-pPerc}%</td></tr>`;
+            });
+            document.getElementById('sTotal').innerText = schTotal;
+            document.getElementById('sPres').innerText = schTotal - schAbs;
+            document.getElementById('sAbs').innerText = schAbs;
+            let totalPerc = schTotal > 0 ? Math.round(((schTotal-schAbs)/schTotal)*100) : 0;
+            document.getElementById('sPresPerc').innerText = totalPerc + "%";
+            document.getElementById('sAbsPerc').innerText = (100 - totalPerc) + "%";
+            document.getElementById('masterTableBody').innerHTML = html;
+        });
+    }
+
+    function openTab(id, btn) {
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(id).classList.add('active'); btn.classList.add('active');
+    }
+
+    function generatePeriodReport() {
+        const start = document.getElementById('periodStart').value;
+        const end = document.getElementById('periodEnd').value;
+        if(!start || !end) return;
+        database.ref('attendance').once('value', (snap) => {
+            const allData = snap.val() || {};
+            g_periodDataRaw = []; let counts = {};
+            Object.keys(allData).forEach(date => {
+                if(date >= start && date <= end) {
+                    Object.keys(allData[date]).forEach(cls => {
+                        قائمة_الطلاب_كاملة[cls]?.forEach((name, i) => {
+                            if(checkIsAbsent(allData[date], cls, i)) {
+                                if(!counts[name]) counts[name] = { cls: cls, count: 0 };
+                                counts[name].count++;
+                            }
+                        });
+                    });
+                }
+            });
+            g_periodDataRaw = Object.entries(counts).map(([name, info]) => ({ 'الاسم': name, 'الصف': info.cls, 'عدد أيام الغياب': info.count }));
+            let html = `<table class="pro-table"><thead><tr><th>الاسم</th><th>الصف</th><th>غ</th></tr></thead><tbody>`;
+            g_periodDataRaw.sort((a,b)=>b['عدد أيام الغياب'] - a['عدد أيام الغياب']).forEach((r) => {
+                html += `<tr><td style="text-align:right; color:var(--primary)">${r.الاسم}</td><td>${r.الصف}</td><td style="color:var(--danger)">${r['عدد أيام الغياب']}</td></tr>`;
+            });
+            document.getElementById('periodResultArea').innerHTML = html + "</tbody></table>";
+            document.getElementById('exportPeriodBtn').style.display = "block";
+        });
+    }
+
+    function viewOldDate(date) {
+        if(!date) return;
+        document.getElementById('adminClassEditSelector').style.display = 'block';
+        const targetCls = document.getElementById('adminClassEditSelector').value;
+        database.ref('attendance/' + date).once('value', (snap) => {
+            const data = snap.val() || {};
+            g_dailyDataRaw = []; 
+            let html = "";
+            if(targetCls) {
+                html += `<div class="result-item" style="border-right-color:var(--accent)"><div class="result-header">تعديل صف: ${targetCls}</div><table class="main-table"><thead><tr><th>الاسم</th><th>الحالة</th></tr></thead><tbody>`;
+                (قائمة_الطلاب_كاملة[targetCls] || []).forEach((name, i) => {
+                    let st = 'p'; 
+                    for(let h=1; h<=7; h++) { 
+                        if(data[targetCls]?.['حصة_'+h]?.[i]?.status) { 
+                            st = data[targetCls]['حصة_'+h][i].status; 
+                            break; 
+                        } 
                     }
-                    deferredPrompt = null;
+                    let color = st=='a'?'var(--danger)':(st=='l'?'var(--accent)':(st=='ex'?'var(--leave)':'var(--success)'));
+                    html += `<tr><td style="text-align:right;">${name}</td><td><select id="oldEdit_${i}" style="border:2px solid ${color}; padding:4px; border-radius:5px;"><option value="p" ${st=='p'?'selected':''}>حاضر</option><option value="a" ${st=='a'?'selected':''}>غائب</option><option value="l" ${st=='l'?'selected':''}>متأخر</option><option value="ex" ${st=='ex'?'selected':''}>مستأذن</option></select></td></tr>`;
+                    g_dailyDataRaw.push({ 'الاسم': name, 'الصف': targetCls, 'الحالة': st == 'a' ? 'غائب' : (st == 'l' ? 'متأخر' : (st == 'ex' ? 'مستأذن' : 'حاضر')) });
+                });
+                html += `</tbody></table></div>`;
+                document.getElementById('updateDailyBtn').style.display = "block";
+            } else {
+                document.getElementById('updateDailyBtn').style.display = "none";
+                Object.keys(قائمة_الطلاب_كاملة).sort().forEach(cls => {
+                    let absList = [];
+                    قائمة_الطلاب_كاملة[cls].forEach((name, i) => {
+                        if(checkIsAbsent(data, cls, i)) absList.push(name);
+                    });
+                    if(absList.length > 0) {
+                        html += `<div class="result-item"><div class="result-header"><span>الصف: ${cls}</span><span style="color:var(--danger)">غائب (${absList.length})</span></div><table class="sub-list-table">`;
+                        absList.forEach(stName => {
+                            html += `<tr><td>${stName}</td></tr>`;
+                            g_dailyDataRaw.push({ 'الاسم': stName, 'الصف': cls, 'الحالة': 'غائب' });
+                        });
+                        html += `</table></div>`;
+                    }
                 });
             }
+            document.getElementById('oldDateResult').innerHTML = html || "<p style='text-align:center;'>لا يوجد تسجيل غياب لهذا اليوم</p>";
+            document.getElementById('exportDailyBtn').style.display = g_dailyDataRaw.length > 0 ? "block" : "none";
+        });
+    }
+
+    function updateFirebaseOldDate() {
+        const date = document.getElementById('adminDateSelector').value;
+        const cls = document.getElementById('adminClassEditSelector').value;
+        if(!date || !cls) return;
+        
+        let updates = {};
+        (قائمة_الطلاب_كاملة[cls] || []).forEach((_, i) => {
+            let val = document.getElementById(`oldEdit_${i}`).value;
+            for(let h=1; h<=7; h++) {
+                updates[`attendance/${date}/${cls}/حصة_${h}/${i}/status`] = val;
+            }
+        });
+
+        database.ref().update(updates).then(() => {
+            alert("? تم تعديل غياب صف " + cls + " لليوم " + date);
+            viewOldDate(date);
+        });
+    }
+
+    function showSuggestions(query) {
+        const box = document.getElementById('suggestionsBox');
+        if (!query.trim()) { box.style.display = 'none'; return; }
+        let matches = [];
+        Object.keys(قائمة_الطلاب_كاملة).forEach(cls => {
+            قائمة_الطلاب_كاملة[cls].forEach(name => {
+                if (name.includes(query)) matches.push({ name, cls });
+            });
+        });
+        if (matches.length > 0) {
+            box.innerHTML = matches.map(m => `<div class="suggestion-item" onclick="selectStudent('${m.name}', '${m.cls}')">${m.name} (${m.cls})</div>`).join('');
+            box.style.display = 'block';
+        } else {
+            box.style.display = 'none';
         }
-    </script>
+    }
+
+    function selectStudent(name, cls) {
+        document.getElementById('studentSearch').value = name;
+        document.getElementById('suggestionsBox').style.display = 'none';
+        
+        database.ref('attendance').once('value', (snap) => {
+            const allData = snap.val() || {};
+            let studentIndex = قائمة_الطلاب_كاملة[cls].indexOf(name);
+            g_selectedStudentData = [];
+            let html = `<h4>سجل غياب الطالب: ${name} (${cls})</h4><table class="main-table"><thead><tr><th>التاريخ</th><th>الحالة</th></tr></thead><tbody>`;
+            
+            Object.keys(allData).sort().reverse().forEach(date => {
+                if (checkIsAbsent(allData[date], cls, studentIndex)) {
+                    html += `<tr><td>${date}</td><td style="color:var(--danger)">غائب</td></tr>`;
+                    g_selectedStudentData.push({ 'التاريخ': date, 'الاسم': name, 'الصف': cls, 'الحالة': 'غائب' });
+                }
+            });
+            
+            html += `</tbody></table>`;
+            document.getElementById('historyResult').innerHTML = g_selectedStudentData.length > 0 ? html : "<p>لا يوجد سجل غياب للطالب.</p>";
+            document.getElementById('exportStudentHistoryBtn').style.display = g_selectedStudentData.length > 0 ? "block" : "none";
+        });
+    }
+
+    function exportPeriodToExcel() {
+        const ws = XLSX.utils.json_to_sheet(g_periodDataRaw);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "تقرير الفترة");
+        XLSX.writeFile(wb, "تقرير_غياب_فترة.xlsx");
+    }
+
+    function exportDailyToExcel() {
+        const ws = XLSX.utils.json_to_sheet(g_dailyDataRaw);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "غياب اليوم");
+        XLSX.writeFile(wb, "تقرير_غياب_اليوم.xlsx");
+    }
+
+    function exportIndividualStudentExcel() {
+        const ws = XLSX.utils.json_to_sheet(g_selectedStudentData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "سجل الطالب");
+        XLSX.writeFile(wb, "سجل_غياب_طالب.xlsx");
+    }
+</script>
 </body>
 </html>
